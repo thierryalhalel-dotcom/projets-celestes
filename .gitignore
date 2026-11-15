@@ -1,0 +1,12 @@
+# Fichiers produits par les programmes (non versionnes)
+__pycache__/
+*.pyc
+*.so
+*.dll
+*.dylib
+resultats/
+figures/
+*.npz
+log*.txt
+*.bak*
+.DS_Store
