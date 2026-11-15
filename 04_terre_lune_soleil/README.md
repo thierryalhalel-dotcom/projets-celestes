@@ -14,6 +14,7 @@ par la méthode d'Euler symplectique, avec un pas de 500 s.
 | `parametres_orbitaux.py` | Trace les paramètres orbitaux à partir d'un fichier `.npz` déjà calculé |
 | `doc_parametres_orbitaux.py` | Fiche de documentation des paramètres orbitaux (PDF) |
 | `make_angles2.py`, `make_angles3.py` | Schémas des angles (coordonnées lunaires, paramètres de l'orbite) |
+| `figure_energie.py` + `energie_core.c` | Conservation de l'énergie selon l'intégrateur (Euler explicite, Runge-Kutta 4, Euler symplectique), sur 4000 ans (~1 min 30) |
 
 ## Utilisation
 
