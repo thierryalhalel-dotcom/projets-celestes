@@ -544,54 +544,52 @@ def plot_fig5_ensemble(res, tag, out_dir, fenetre_env=50.0, fenetre_moy=200.0):
         (pr[:,0]/YEAR_S, pr[:,3], "Vitesse au périgée",              "km/s"),
     ]
 
-    # Cette figure est imprimee reduite (0,9 textwidth pour 14 pouces de large) :
-    # on grossit les polices de 5 pt par rapport aux autres figures.
+    # Mise en page : pour chaque parametre, a gauche l'enveloppe min/max et la
+    # moyenne glissante (ordonnees elargies pour que l'enveloppe apparaisse comme
+    # une bande), a droite l'ecart de la moyenne glissante a sa valeur moyenne,
+    # dans un panneau separe (et non un encart qui masquerait la courbe).
     up = 5
-    fig, axes = plt.subplots(4, 1, figsize=(14, 15))
-    fig.suptitle(f"Dérive séculaire des paramètres lunaires  ({jupiter_str})",
-                 fontsize=FS_SUPTITLE - 2 + up, fontweight="bold")
+    C_ENV, C_BORD, C_MOY, C_ECART = "#b39ddb", "#5e35b1", "#1a237e", "#c0590a"
+    fig, axes = plt.subplots(4, 2, figsize=(15, 15),
+                             gridspec_kw=dict(width_ratios=[2.1, 1.0]))
+    fig.suptitle(f"Recherche d'une dérive séculaire des paramètres lunaires  ({jupiter_str})",
+                 fontsize=FS_SUPTITLE - 9 + up, fontweight="bold")
 
-    for i, (ax, (t_yr, y, titre, ylab)) in enumerate(zip(axes, panneaux)):
+    for i, (t_yr, y, titre, ylab) in enumerate(panneaux):
+        ax, axd = axes[i, 0], axes[i, 1]
         tc_e, ymin, ymax, _ = _enveloppe_et_moyenne(t_yr, y, fenetre_env)
         tc_m, _, _, ymoy = _enveloppe_et_moyenne(t_yr, y, fenetre_moy)
 
-        ax.fill_between(tc_e, ymin, ymax, color="#c3c3ff", alpha=0.35, linewidth=0,
-                        label="enveloppe min/max")
-        ax.plot(tc_e, ymin, color="#7a7ae0", lw=0.9)
-        ax.plot(tc_e, ymax, color="#7a7ae0", lw=0.9)
-        ax.plot(tc_m, ymoy, color="#1f1f8f", lw=2.2,
-                label=f"moyenne glissante ({fenetre_moy:.0f} ans)")
-        _style_axes(ax, title=titre, ylabel=ylab, fs_title=FS_TITLE + up,
-                    fs_label=FS_LABEL + up, fs_tick=FS_TICK + up)
+        ax.fill_between(tc_e, ymin, ymax, color=C_ENV, alpha=0.55, linewidth=0,
+                        label="enveloppe min/max (oscillation orbitale)")
+        ax.plot(tc_e, ymin, color=C_BORD, lw=1.3)
+        ax.plot(tc_e, ymax, color=C_BORD, lw=1.3)
+        ax.plot(tc_m, ymoy, color=C_MOY, lw=2.6,
+                label=f"moyenne glissante sur {fenetre_moy:.0f} ans")
+        bas, haut = np.nanmin(ymin), np.nanmax(ymax); h = haut - bas
+        ax.set_ylim(bas - 0.35*h, haut + 0.35*h)
         ax.set_xlim(t_yr.min(), t_yr.max())
-        if i == 0:
-            ax.legend(fontsize=FS_LEGEND + up, loc="upper left", framealpha=0.95)
+        _style_axes(ax, title=titre, ylabel=ylab, fs_title=FS_TITLE + up - 2,
+                    fs_label=FS_LABEL + up - 2, fs_tick=FS_TICK + up - 2)
 
-        # --- encart : zoom sur l'ecart de la moyenne glissante a sa reference ---
-        # On trace l'ecart (ymoy - ref), pas la valeur absolue : les valeurs
-        # affichees restent de petits nombres lisibles, sans recourir a la
-        # notation scientifique decalee de matplotlib (ex. "1e-5 + 1.084"),
-        # illisible pour un lecteur non averti.
-        axins = ax.inset_axes([0.62, 0.06, 0.36, 0.40])
-        ref = ymoy.mean()
-        ecart = ymoy - ref
-        marge = max(3.0 * ecart.std(), 1e-12)
-        axins.axhline(0.0, color="#999999", lw=1.0, ls="--")
-        axins.plot(tc_m, ecart, color="#1f1f8f", lw=1.4)
-        axins.set_xlim(t_yr.min(), t_yr.max())
-        axins.set_ylim(-marge, marge)
-        axins.ticklabel_format(axis="y", style="sci", scilimits=(0, 0), useOffset=False)
-        axins.set_title(f"écart à la moyenne ({fenetre_moy:.0f} ans)", fontsize=FS_LEGEND - 4 + up,
-                        backgroundcolor="white")
-        # memes abscisses que l'axe principal : on ne les repete pas dans l'encart
-        axins.tick_params(labelsize=FS_LEGEND - 6 + up, labelbottom=False)
-        axins.yaxis.get_offset_text().set_fontsize(FS_LEGEND - 6 + up)
-        axins.grid(True, alpha=0.3)
+        # ecart de la moyenne glissante a sa valeur moyenne, avec la puissance
+        # de 10 dans le libelle de l'axe (pas de facteur flottant illisible)
+        ecart = ymoy - np.nanmean(ymoy)
+        amp = np.nanmax(np.abs(ecart))
+        expo = int(np.floor(np.log10(amp))) if amp > 0 else 0
+        axd.axhline(0.0, color="#888888", lw=1.0, ls="--")
+        axd.plot(tc_m, ecart / 10.0**expo, color=C_ECART, lw=1.8)
+        lim = 1.6 * amp / 10.0**expo
+        axd.set_ylim(-lim, lim); axd.set_xlim(t_yr.min(), t_yr.max())
+        _style_axes(axd, title="écart à la moyenne", ylabel=f"$\\times 10^{{{expo}}}$",
+                    fs_title=FS_TITLE + up - 6, fs_label=FS_LABEL + up - 4, fs_tick=FS_TICK + up - 4)
 
-    axes[-1].set_xlabel("années", fontsize=FS_LABEL + up)
-    # rect : on reserve une bande en haut pour que le titre general ne
-    # chevauche pas le titre du premier panneau
-    fig.tight_layout(rect=[0, 0, 1, 0.975])
+    axes[-1, 0].set_xlabel("années", fontsize=FS_LABEL + up - 2)
+    axes[-1, 1].set_xlabel("années", fontsize=FS_LABEL + up - 2)
+    h, l = axes[0, 0].get_legend_handles_labels()
+    fig.legend(h, l, loc="upper center", ncol=2, fontsize=FS_LEGEND + up - 2,
+               bbox_to_anchor=(0.5, 0.955), frameon=False)
+    fig.tight_layout(rect=[0, 0, 1, 0.93])
     fig.savefig(os.path.join(out_dir, f"fig5_ensemble_{tag}.png"), dpi=150)
     plt.close(fig)
 
