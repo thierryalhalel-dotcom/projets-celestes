@@ -24,13 +24,13 @@ import matplotlib.pyplot as plt
 # Elements orbitaux (exageres pour la lisibilite)
 # ---------------------------------------------------------------------------
 I = np.radians(55)        # inclinaison (vraie valeur : 5,15 deg)
-OM = np.radians(55)       # longitude du noeud ascendant Omega
-W = np.radians(40)        # argument du perigee omega
+OM = np.radians(95)       # longitude du noeud ascendant Omega
+W = np.radians(75)        # argument du perigee omega
 E = 0.20                  # excentricite (vraie valeur : 0,055 en moyenne)
 A = 1.0                   # demi-grand axe (unite arbitraire)
 R_ECL = 1.0               # (recalcule plus bas : rayon du cercle passant par N1 et N2)
 
-AZ = np.radians(-140)     # orientation de la vue (comme la figure des coordonnees)
+AZ = np.radians(-180)     # orientation de la vue (comme la figure des coordonnees)
 EL = np.radians(27)
 
 C_STRUCT = "#555555"
@@ -134,7 +134,7 @@ R_ECL = np.linalg.norm(N1_ - N2_)/2
 bord = np.array([P(C_ECL_CENTRE + dans_ecl(a, R_ECL)) for a in t])
 ax.fill(bord[:, 0], bord[:, 1], color=C_ECL, alpha=0.07, lw=0)
 ax.plot(bord[:, 0], bord[:, 1], color=C_ECL, lw=1.6)
-texte(ax, C_ECL_CENTRE + dans_ecl(np.radians(150), R_ECL), "Plan de l'écliptique", dx=0.04, dy=0.04,
+texte(ax, C_ECL_CENTRE + dans_ecl(np.radians(180), R_ECL), "Plan de l'écliptique", dx=0.06, dy=0.0,
       fontsize=16, color=C_ECL, ha="left", va="bottom")
 
 # Axe Ox (point vernal)
@@ -146,8 +146,8 @@ texte(ax, dans_ecl(0, R_ECL + 0.34), "$Ox$ (point vernal)", dx=-0.04, dy=0.0,
 pts = [orbite(n) for n in t]
 trace_orbite(ax, pts)
 fleche(ax, orbite(np.radians(-62)), orbite(np.radians(-55)), C_ORB, lw=2.4, tete=16)
-texte(ax, orbite(np.radians(75)), "Orbite\nlunaire", dx=0.10, dy=0.0, fontsize=16,
-      color=C_ORB, ha="left", va="center")
+texte(ax, orbite(np.radians(215)), "Orbite\nlunaire", dx=-0.10, dy=0.0, fontsize=16,
+      color=C_ORB, ha="right", va="center")
 
 # Noeuds et ligne des noeuds (N1 : u = 0, N2 : u = 180 deg)
 N1 = orbite(-W); N2 = orbite(np.pi - W)
@@ -175,12 +175,12 @@ trace(ax, [Pe, Pp], C_ANG2, lw=1.2, style="--")
 trace(ax, [O, Pp], C_ANG2, lw=1.2, style="--")
 ax.plot(*P(Pp), "o", ms=5, color=C_ANG2, zorder=6)
 lam_p = np.arctan2(Pp[1], Pp[0])
-arc(ax, [dans_ecl(a, 0.62) for a in np.linspace(0, lam_p, 90)], C_ANG2, lw=2.0)
-texte(ax, dans_ecl(lam_p*0.22, 0.74), "$\\Xi$", dy=0.0, fontsize=22, color=C_ANG2, ha="center", va="center")
+arc(ax, [dans_ecl(a, 0.50) for a in np.linspace(0, lam_p, 90)], C_ANG2, lw=2.0)
+texte(ax, dans_ecl(lam_p*0.30, 0.62), "$\\Xi$", dy=0.0, fontsize=22, color=C_ANG2, ha="center", va="center")
 
 # Longitude du noeud ascendant Omega (dans l'ecliptique, de Ox a N1)
 arc(ax, [dans_ecl(a, 0.38) for a in np.linspace(0, OM, 40)], C_ANG, lw=2.4)
-texte(ax, dans_ecl(OM*0.30, 0.50), "$\\Omega$", fontsize=22, color=C_ANG, ha="center", va="center")
+texte(ax, dans_ecl(OM*0.55, 0.25), "$\\Omega$", fontsize=22, color=C_ANG, ha="center", va="center")
 
 # Argument du perigee omega (dans le plan de l'orbite, de N1 au perigee)
 arc(ax, [dans_orbite(u, 0.24) for u in np.linspace(0, W, 60)], C_ANG, lw=2.4)
@@ -191,17 +191,17 @@ texte(ax, dans_orbite(W*0.55, 0.44), "$\\omega$", fontsize=22, color=C_ANG, ha="
 n1 = N1/np.linalg.norm(N1)
 e_ecl = np.cross([0, 0, 1], n1)              # direction dans l'ecliptique, perpendiculaire aux noeuds
 e_orb = ROT @ np.array([0, 1.0, 0])          # direction dans l'orbite, perpendiculaire aux noeuds
-r_i = 0.17
+r_i = 0.22
 arc_i = [N1 + r_i*(np.cos(s)*e_ecl + np.sin(s)*np.cross(n1, e_ecl)) for s in np.linspace(0, I, 30)]
-trace(ax, [N1, N1 + 0.27*e_ecl], C_ECL, lw=1.2)
-trace(ax, [N1, N1 + 0.27*e_orb], C_ORB, lw=1.2)
-arc(ax, arc_i, C_ANG, lw=2.2, tete=11)
-texte(ax, N1 + 0.24*e_ecl, "$i$",
-      dx=0.02, dy=-0.06, fontsize=22, color=C_ANG, ha="left", va="center")
+trace(ax, [N1, N1 + 0.46*e_ecl], C_ECL, lw=1.6)
+trace(ax, [N1, N1 + 0.46*e_orb], C_ORB, lw=1.6)
+arc(ax, arc_i, C_ANG, lw=3.0, tete=15)
+texte(ax, N1 + 0.30*e_ecl, "$i$",
+      dx=0.0, dy=-0.08, fontsize=22, color=C_ANG, ha="left", va="center")
 
 # Terre au foyer
 q = P(O); ax.plot(*q, "o", ms=13, color="#2e75b6", zorder=7)
-ax.text(q[0] - 0.06, q[1] + 0.13, "Terre", fontsize=16, color=C_STRUCT, ha="right", va="bottom")
+ax.text(q[0] - 0.03, q[1] + 0.13, "Terre", fontsize=16, color=C_STRUCT, ha="right", va="bottom")
 
 ax.set_xlim(-2.2, 1.95); ax.set_ylim(-1.35, 1.45)
 out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "angles3.png")
