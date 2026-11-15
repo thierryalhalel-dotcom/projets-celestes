@@ -26,7 +26,7 @@ import matplotlib.pyplot as plt
 I = np.radians(55)        # inclinaison (vraie valeur : 5,15 deg)
 OM = np.radians(95)       # longitude du noeud ascendant Omega
 W = np.radians(75)        # argument du perigee omega
-E = 0.20                  # excentricite (vraie valeur : 0,055 en moyenne)
+E = 0.32                  # excentricite (vraie valeur : 0,055 en moyenne)
 A = 1.0                   # demi-grand axe (unite arbitraire)
 R_ECL = 1.0               # (recalcule plus bas : rayon du cercle passant par N1 et N2)
 
@@ -146,7 +146,7 @@ texte(ax, dans_ecl(0, R_ECL + 0.34), "$Ox$ (point vernal)", dx=-0.04, dy=0.0,
 pts = [orbite(n) for n in t]
 trace_orbite(ax, pts)
 fleche(ax, orbite(np.radians(-62)), orbite(np.radians(-55)), C_ORB, lw=2.4, tete=16)
-texte(ax, orbite(np.radians(215)), "Orbite\nlunaire", dx=-0.10, dy=0.0, fontsize=16,
+texte(ax, orbite(np.radians(200)), "Orbite\nlunaire", dx=-0.12, dy=0.0, fontsize=16,
       color=C_ORB, ha="right", va="center")
 
 # Noeuds et ligne des noeuds (N1 : u = 0, N2 : u = 180 deg)
@@ -176,7 +176,7 @@ trace(ax, [O, Pp], C_ANG2, lw=1.2, style="--")
 ax.plot(*P(Pp), "o", ms=5, color=C_ANG2, zorder=6)
 lam_p = np.arctan2(Pp[1], Pp[0])
 arc(ax, [dans_ecl(a, 0.50) for a in np.linspace(0, lam_p, 90)], C_ANG2, lw=2.0)
-texte(ax, dans_ecl(lam_p*0.30, 0.62), "$\\Xi$", dy=0.0, fontsize=22, color=C_ANG2, ha="center", va="center")
+texte(ax, dans_ecl(lam_p*0.42, 0.62), "$\\Xi$", dy=0.0, fontsize=22, color=C_ANG2, ha="center", va="center")
 
 # Longitude du noeud ascendant Omega (dans l'ecliptique, de Ox a N1)
 arc(ax, [dans_ecl(a, 0.38) for a in np.linspace(0, OM, 40)], C_ANG, lw=2.4)
@@ -201,9 +201,11 @@ texte(ax, N1 + 0.30*e_ecl, "$i$",
 
 # Terre au foyer
 q = P(O); ax.plot(*q, "o", ms=13, color="#2e75b6", zorder=7)
-ax.text(q[0] - 0.03, q[1] + 0.13, "Terre", fontsize=16, color=C_STRUCT, ha="right", va="bottom")
+ax.annotate("Terre", xy=(q[0] - 0.03, q[1] + 0.02), xytext=(q[0] - 0.60, q[1] + 0.21), fontsize=16,
+            color=C_STRUCT, ha="center", va="center",
+            arrowprops=dict(arrowstyle="-", color=C_STRUCT, lw=0.9, shrinkB=4))
 
-ax.set_xlim(-2.2, 1.95); ax.set_ylim(-1.35, 1.45)
+ax.set_xlim(-2.2, 1.95); ax.set_ylim(-1.55, 1.1)
 out = os.path.join(os.path.dirname(os.path.abspath(__file__)), "angles3.png")
 plt.savefig(out, dpi=300, bbox_inches="tight", facecolor="white", edgecolor="none")
 plt.close()
